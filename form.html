@@ -361,10 +361,41 @@ input.error,select.error{border-color:#D85A30;box-shadow:0 0 0 3px rgba(216,90,4
 </div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtOEwjSzSYxZCpQykEKLxw5ZkEy-hgppX5nVNLFuZay5YtldhIKE2hFiswsp6SZps/exec";
-const SUBMIT_URL = "https://script.google.com/macros/s/AKfycbwCb3DZ5i550WXcpipOXyIaDiiEieIMlChwMcxSoYurJ3SE0gxj6XZ0HXg69nrIO7A/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyN_HaHYS-c0dS7Ng1xgwglB-WIu6OGR01yZckkuJyCbW0-qv6dyFy9V2gmbYTSpA/exec";
 
-const SCHOOL_META = {
+function jsonp(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      delete window[cbName]; document.body.removeChild(script); reject(new Error('timeout'));
+    }, 10000);
+    window[cbName] = function(data) {
+      clearTimeout(timeout); delete window[cbName]; document.body.removeChild(script); resolve(data);
+    };
+    params.callback = cbName;
+    const qs = Object.keys(params).map(k => encodeURIComponent(k)+'='+encodeURIComponent(params[k])).join('&');
+    script.src = SCRIPT_URL + '?' + qs;
+    script.onerror = () => { clearTimeout(timeout); reject(new Error('error')); };
+    document.body.appendChild(script);
+  });
+}
+
+async function init() {
+  try {
+    const json = await jsonp({action: 'getLinks'});
+    if (json.status === 'success') {
+      json.data.forEach(d => schoolLinks[d.key] = d);
+    }
+  } catch(e) {}
+  renderSchoolCards();
+  document.getElementById('initLoading').classList.add('hide');
+  const sp = new URLSearchParams(window.location.search).get('school');
+  if (sp) {
+    const card = document.querySelector(`[data-key="${sp}"]`);
+    if (card && !card.classList.contains('disabled')) card.click();
+  }
+}
   ibadat: {icon:'🕌', bg:'#E1F5EE', tag:'tag-green', tagText:'برنامج قائم'},
   hayat1: {icon:'🌱', bg:'#FAEEDA', tag:'tag-gold',  tagText:'الترم الأول'},
   hayat2: {icon:'🌿', bg:'#FAEEDA', tag:'tag-gold',  tagText:'الترم الثاني'},
@@ -376,24 +407,7 @@ let radioValues = {gender:'', marital:'', abjadiyat:''};
 let schoolLinks = {};
 
 // ===== INIT =====
-async function init() {
-  try {
-    const res = await fetch(SCRIPT_URL + '?action=getLinks');
-    const json = await res.json();
-    if (json.status === 'success') {
-      json.data.forEach(d => schoolLinks[d.key] = d);
-    }
-  } catch(e) {}
-  renderSchoolCards();
-  document.getElementById('initLoading').classList.add('hide');
-
-  // auto-select from URL param
-  const sp = new URLSearchParams(window.location.search).get('school');
-  if (sp) {
-    const card = document.querySelector(`[data-key="${sp}"]`);
-    if (card && !card.classList.contains('disabled')) card.click();
-  }
-}
+const SCHOOL_META = {
 
 function renderSchoolCards() {
   const grid = document.getElementById('schoolGrid');
@@ -528,73 +542,71 @@ function copySuccessLink() {
   });
 }
 
+function jsonp(params) {
+  return new Promise((resolve, reject) => {
+    const cbName = 'cb_' + Date.now();
+    const script = document.createElement('script');
+    const timeout = setTimeout(() => {
+      delete window[cbName];
+      document.body.removeChild(script);
+      reject(new Error('timeout'));
+    }, 10000);
+
+    window[cbName] = function(data) {
+      clearTimeout(timeout);
+      delete window[cbName];
+      document.body.removeChild(script);
+      resolve(data);
+    };
+
+    params.callback = cbName;
+    const qs = Object.keys(params).map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k])).join('&');
+    script.src = SCRIPT_URL + '?' + qs;
+    script.onerror = () => { clearTimeout(timeout); reject(new Error('script error')); };
+    document.body.appendChild(script);
+  });
+}
+
 async function submitForm() {
   if (!document.getElementById('termsCheck').checked) {
     document.getElementById('e-terms').classList.add('show'); return;
   }
-  const btn = document.getElementById('submitBtn');
-  const label = document.getElementById('submitLabel');
-  const spinner = document.getElementById('submitSpinner');
+  const btn    = document.getElementById('submitBtn');
+  const label  = document.getElementById('submitLabel');
+  const spinner= document.getElementById('submitSpinner');
   btn.disabled = true; label.textContent = 'جاري الإرسال...'; spinner.style.display = 'block';
 
-  const payload = {
-    school:        formData.schoolLabel,
-    name:          document.getElementById('f-name').value,
-    age:           document.getElementById('f-age').value,
-    email:         document.getElementById('f-email').value,
-    mobile:        document.getElementById('f-mobile').value,
-    whatsapp:      document.getElementById('f-whatsapp').value,
-    telegram:      document.getElementById('f-telegram').value,
-    telegramUser:  document.getElementById('f-tguser').value,
-    nationality:   document.getElementById('f-nationality').value,
-    gender:        radioValues.gender,
-    maritalStatus: radioValues.marital,
-    job:           document.getElementById('f-job').value,
-    abjadiyat:     radioValues.abjadiyat
-  };
-
   try {
-    // Use an iframe trick to bypass no-cors limitation with Google Apps Script
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = SUBMIT_URL;
-    form.target = 'hidden_iframe';
-    form.style.display = 'none';
-
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = 'payload';
-    input.value = JSON.stringify(payload);
-    form.appendChild(input);
-
-    const iframe = document.createElement('iframe');
-    iframe.name = 'hidden_iframe';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
-    document.body.appendChild(form);
-
-    await new Promise((resolve) => {
-      iframe.onload = resolve;
-      form.submit();
-      setTimeout(resolve, 4000); // fallback timeout
+    const result = await jsonp({
+      action:        'submit',
+      school:        formData.schoolLabel,
+      name:          document.getElementById('f-name').value,
+      age:           document.getElementById('f-age').value,
+      email:         document.getElementById('f-email').value,
+      mobile:        document.getElementById('f-mobile').value,
+      whatsapp:      document.getElementById('f-whatsapp').value,
+      telegram:      document.getElementById('f-telegram').value,
+      telegramUser:  document.getElementById('f-tguser').value,
+      nationality:   document.getElementById('f-nationality').value,
+      gender:        radioValues.gender,
+      maritalStatus: radioValues.marital,
+      job:           document.getElementById('f-job').value,
+      abjadiyat:     radioValues.abjadiyat
     });
 
-    document.body.removeChild(form);
-    document.body.removeChild(iframe);
+    if (result.status !== 'success') throw new Error(result.message || 'error');
 
-    // Show success
+    // Show success screen
     document.querySelectorAll('.step-page').forEach(p => p.style.display = 'none');
-    const sp = document.getElementById('successPage');
-    sp.classList.add('visible');
+    document.getElementById('successPage').classList.add('visible');
     document.getElementById('progressFill').style.width = '100%';
 
-    // Show school link if available
+    // Show school link if exists
     const link = formData.schoolLink;
     if (link && link.trim()) {
-      const box = document.getElementById('successLinkBox');
+      const box  = document.getElementById('successLinkBox');
       const href = document.getElementById('successLinkHref');
-      href.href = link;
-      href.textContent = link;
+      href.href = link; href.textContent = link;
       box.style.display = 'block';
     }
 
