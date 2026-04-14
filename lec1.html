@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>المحاضرة التمهيدية — مدرسة القلوب</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #2d6e6e;
+    --teal-light: #3d8f8f;
+    --teal-pale: #e8f4f4;
+    --gold: #b8860b;
+    --gold-light: #d4a017;
+    --gold-pale: #fdf6e3;
+    --cream: #faf8f3;
+    --dark: #1a2e2e;
+    --text: #2c3e3e;
+    --text-soft: #5a7070;
+    --border: #c8dede;
+    --white: #ffffff;
+    --shadow: 0 4px 24px rgba(45,110,110,0.10);
+    --shadow-lg: 0 12px 48px rgba(45,110,110,0.15);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Cairo', sans-serif; background: var(--cream); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(145deg, var(--dark) 0%, #1e4545 50%, #2d6e6e 100%);
+    color: white; padding: 70px 24px 60px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before { content:''; position:absolute; top:-80px; left:-80px; width:320px; height:320px; border-radius:50%; background:rgba(184,134,11,0.08); pointer-events:none; }
+  .hero::after  { content:''; position:absolute; bottom:-60px; right:-60px; width:240px; height:240px; border-radius:50%; background:rgba(184,134,11,0.06); pointer-events:none; }
+
+  .hero-badge { display:inline-block; background:rgba(184,134,11,0.18); border:1px solid rgba(184,134,11,0.4); color:#f0c040; font-size:13px; font-weight:600; padding:6px 20px; border-radius:40px; margin-bottom:24px; animation:fadeDown .6s ease both; }
+  .hero-ayah { font-family:'Amiri',serif; font-size:clamp(18px,4vw,26px); color:#f0c040; margin-bottom:18px; opacity:.9; animation:fadeDown .7s ease .1s both; line-height:1.9; }
+  .hero-title { font-size:clamp(32px,7vw,60px); font-weight:900; letter-spacing:-1px; line-height:1.1; margin-bottom:16px; animation:fadeDown .7s ease .2s both; }
+  .hero-title span { color:#f0c040; }
+  .hero-sub { font-size:clamp(15px,3vw,19px); font-weight:300; opacity:.75; margin-bottom:36px; animation:fadeDown .7s ease .3s both; }
+  .hero-date-pill { display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:50px; padding:10px 28px; font-size:15px; font-weight:600; animation:fadeDown .7s ease .4s both; }
+  .dot { width:8px; height:8px; background:#4ade80; border-radius:50%; animation:pulse 1.8s infinite; }
+
+  /* NAV */
+  .nav-wrap { position:sticky; top:0; z-index:100; background:var(--white); border-bottom:2px solid var(--border); box-shadow:0 2px 16px rgba(45,110,110,0.07); }
+  .nav-tabs { display:flex; overflow-x:auto; scrollbar-width:none; max-width:980px; margin:0 auto; padding:0 16px; }
+  .nav-tabs::-webkit-scrollbar { display:none; }
+  .tab-btn { flex-shrink:0; background:none; border:none; cursor:pointer; padding:16px 18px; font-family:'Cairo',sans-serif; font-size:14px; font-weight:600; color:var(--text-soft); border-bottom:3px solid transparent; transition:all .25s; white-space:nowrap; position:relative; top:2px; }
+  .tab-btn:hover { color:var(--teal); }
+  .tab-btn.active { color:var(--teal); border-bottom-color:var(--teal); }
+
+  /* CONTENT */
+  .main { max-width:980px; margin:0 auto; padding:40px 20px 80px; }
+  .section { display:none; animation:fadeIn .4s ease; }
+  .section.active { display:block; }
+
+  .sec-title { font-size:19px; font-weight:800; color:var(--teal); margin:32px 0 18px; display:flex; align-items:center; gap:10px; }
+  .sec-title:first-child { margin-top:0; }
+  .sec-title::after { content:''; flex:1; height:2px; background:linear-gradient(to left, transparent, var(--border)); }
+
+  /* CARDS */
+  .cards-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; margin-bottom:28px; }
+  .card { background:var(--white); border-radius:16px; padding:22px 20px; border:1.5px solid var(--border); box-shadow:var(--shadow); transition:transform .2s,box-shadow .2s; }
+  .card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+  .card-icon { font-size:26px; margin-bottom:12px; display:block; }
+  .card-title { font-size:15px; font-weight:700; color:var(--dark); margin-bottom:6px; }
+  .card-body { font-size:13px; color:var(--text-soft); line-height:1.8; }
+  .card-teal { border-top:3px solid var(--teal); }
+  .card-gold { border-top:3px solid var(--gold); }
+
+  /* ACCORDION */
+  .accordion { margin-bottom:10px; }
+  .acc-head { width:100%; background:var(--white); border:1.5px solid var(--border); border-radius:14px; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-family:'Cairo',sans-serif; font-size:15px; font-weight:700; color:var(--dark); transition:all .2s; text-align:right; gap:12px; }
+  .acc-head:hover { background:var(--teal-pale); border-color:var(--teal); }
+  .acc-head.open { background:var(--teal); color:white; border-color:var(--teal); border-bottom-left-radius:0; border-bottom-right-radius:0; }
+  .acc-arrow { transition:transform .3s; font-size:14px; flex-shrink:0; }
+  .acc-head.open .acc-arrow { transform:rotate(180deg); }
+  .acc-body { max-height:0; overflow:hidden; transition:max-height .35s ease; background:var(--white); border:1.5px solid var(--teal); border-top:none; border-bottom-left-radius:14px; border-bottom-right-radius:14px; }
+  .acc-body.open { max-height:800px; }
+  .acc-inner { padding:20px 22px; font-size:15px; color:var(--text); line-height:2; }
+
+  /* SCHEDULE */
+  .sched-row { display:flex; align-items:center; gap:16px; background:var(--white); border:1.5px solid var(--border); border-radius:14px; padding:16px 22px; margin-bottom:10px; transition:all .2s; }
+  .sched-row:hover { border-color:var(--teal); background:var(--teal-pale); }
+  .day-badge { background:var(--teal); color:white; font-size:13px; font-weight:700; padding:6px 16px; border-radius:30px; white-space:nowrap; flex-shrink:0; }
+  .sched-content { flex:1; }
+  .sched-content strong { font-size:15px; color:var(--dark); display:block; margin-bottom:2px; }
+  .sched-content span { font-size:13px; color:var(--text-soft); }
+  .sched-emoji { font-size:22px; flex-shrink:0; }
+
+  /* TEAM */
+  .team-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-bottom:28px; }
+  .team-card { background:var(--white); border:1.5px solid var(--border); border-radius:14px; padding:20px 16px; text-align:center; transition:all .2s; }
+  .team-card:hover { border-color:var(--gold); transform:translateY(-2px); }
+  .team-avatar { width:50px; height:50px; border-radius:50%; background:linear-gradient(135deg,var(--teal),var(--teal-light)); display:flex; align-items:center; justify-content:center; font-size:18px; color:white; margin:0 auto 12px; font-weight:700; font-family:'Amiri',serif; }
+  .team-name { font-size:14px; font-weight:700; color:var(--dark); margin-bottom:6px; }
+  .team-role { font-size:12px; color:var(--teal); font-weight:600; background:var(--teal-pale); padding:3px 12px; border-radius:20px; display:inline-block; }
+
+  /* TASKS */
+  .tasks-list { list-style:none; margin-bottom:24px; }
+  .tasks-list li { display:flex; align-items:center; gap:14px; padding:14px 20px; background:var(--white); border:1.5px solid var(--border); border-radius:12px; margin-bottom:8px; font-size:15px; color:var(--text); cursor:pointer; transition:all .2s; user-select:none; }
+  .tasks-list li:hover { border-color:var(--teal); background:var(--teal-pale); }
+  .tasks-list li.done { background:var(--teal-pale); border-color:var(--teal); color:var(--text-soft); text-decoration:line-through; }
+  .chk { width:24px; height:24px; border:2px solid var(--border); border-radius:7px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; color:white; transition:all .2s; }
+  .tasks-list li.done .chk { background:var(--teal); border-color:var(--teal); }
+
+  /* BANNER */
+  .banner { border-radius:18px; padding:26px 28px; margin-bottom:24px; }
+  .banner-teal { background:linear-gradient(135deg,var(--teal) 0%,var(--teal-light) 100%); color:white; }
+  .banner-gold { background:linear-gradient(135deg,#a07808 0%,var(--gold-light) 100%); color:white; }
+  .banner-dark { background:linear-gradient(135deg,var(--dark) 0%,#1e4545 100%); color:white; }
+  .banner-title { font-size:17px; font-weight:800; margin-bottom:8px; }
+  .banner-text { font-size:14px; opacity:.9; line-height:1.9; }
+
+  /* NOTE */
+  .note-box { background:var(--gold-pale); border:1.5px solid rgba(184,134,11,0.3); border-radius:14px; padding:20px 22px; margin-bottom:20px; font-size:15px; color:var(--text); line-height:1.9; }
+  .note-box strong { color:var(--gold); display:block; margin-bottom:6px; }
+
+  /* DIVIDER */
+  .divider { display:none; }
+
+  /* FOOTER */
+  .footer { background:var(--dark); color:rgba(255,255,255,0.5); text-align:center; padding:28px 20px; font-size:13px; line-height:2; }
+  .footer .gold { color:#f0c040; font-family:'Amiri',serif; font-size:17px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn   { from{opacity:0;transform:translateY(10px)}  to{opacity:1;transform:translateY(0)} }
+  @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.85)} }
+
+  @media(max-width:600px){
+    .cards-grid{grid-template-columns:1fr}
+    .team-grid{grid-template-columns:repeat(2,1fr)}
+    .tab-btn{padding:14px 12px;font-size:13px}
+    .sched-row{flex-wrap:wrap}
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🌿 الترم الثاني · 1447هـ</div>
+  <h1 class="hero-title">مدرسة <span>القلوب</span></h1>
+  <p class="hero-sub">المحاضرة التمهيدية — نضع فيها الأساس معًا</p>
+  <div class="hero-date-pill">
+    <span class="dot"></span>
+    الإثنين 21 أبريل 2026
+  </div>
+</div>
+
+<!-- NAV -->
+<div class="nav-wrap">
+  <div class="nav-tabs">
+    <button class="tab-btn active" onclick="showTab('agenda',this)">📋 محاور اللقاء</button>
+    <button class="tab-btn" onclick="showTab('schedule',this)">📅 الفاعليات الأسبوعية</button>
+    <button class="tab-btn" onclick="showTab('engage',this)">⭐ التفاعل والجوائز</button>
+    <button class="tab-btn" onclick="showTab('dawah',this)">📣 الدعوة</button>
+    <button class="tab-btn" onclick="showTab('tech',this)">📡 تقنية البث</button>
+    <button class="tab-btn" onclick="showTab('team',this)">👥 فريق العمل</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- TAB 1: محاور اللقاء -->
+  <div class="section active" id="agenda">
+
+    <p class="sec-title">📋 كلام عام</p>
+
+    <div class="accordion">
+      <button class="acc-head" onclick="toggleAcc(this)">
+        <span>🎯 الهدف من وجوده واختيار الله له</span>
+        <span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          الهدف من وجودك هنا واختيار الله لك لهذه الرحلة. وجودك هنا ليس صدفة — هو توفيق من الله وحده.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <button class="acc-head" onclick="toggleAcc(this)">
+        <span>🤲 تجديد النية</span>
+        <span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          تجديد النية قبل كل خطوة — النية هي روح العمل، ولا بد أن تُجدَّد باستمرار.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <button class="acc-head" onclick="toggleAcc(this)">
+        <span>✅ الصدق</span>
+        <span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          الصدق مع الله ومع النفس — هو الذي يُفرّق بين من يتعلم وبين من ينتفع بما يتعلم.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <button class="acc-head" onclick="toggleAcc(this)">
+        <span>🌱 الاستمرار والصبر والبركة والتوفيق</span>
+        <span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          الاستمرار — حتى بالقليل — هو ما يصنع الفارق. والصبر على المشقة يأتي بالبركة، والتوفيق من الله لمن صدق في البداية.
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion">
+      <button class="acc-head" onclick="toggleAcc(this)">
+        <span>📚 بعض آداب طلب العلم</span>
+        <span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          بعض الآداب التي تجعل طلب العلم نافعًا ومؤثرًا في القلب — لأن العلم بلا أدب لا يثمر.
+        </div>
+      </div>
+    </div>
+
+    <div class="divider">✦ ✦ ✦</div>
+
+    <p class="sec-title">📖 تفاصيل المنهج</p>
+
+    <div class="accordion">
+      <button class="acc-head" onclick="toggleAcc(this)">
+        <span>📘 تفاصيل عن عناوين الفصل اللي هندرسه</span>
+        <span class="acc-arrow">▾</span>
+      </button>
+      <div class="acc-body">
+        <div class="acc-inner">
+          سنستعرض معًا عناوين الفصل الذي سندرسه هذا الترم — حتى تعرف أين أنت وإلى أين ستصل بإذن الله.
+        </div>
+      </div>
+    </div>
+
+    <div class="divider">✦ ✦ ✦</div>
+
+    <p class="sec-title">💛 كلمة للمطحونين</p>
+
+    <div class="note-box">
+      <strong>للأمهات، ومن يشتغلوا، ومن يذاكروا، ومن هو مريض، وغيره من ملهيات الحياة…</strong>
+      هذه المدرسة لكم أيضًا. الاستمرار بالقليل خير من الانقطاع. كن معنا بما تستطيع.
+    </div>
+
+    <div class="divider">✦ ✦ ✦</div>
+
+    <p class="sec-title">❓ وقت للأسئلة</p>
+
+    <div class="banner banner-dark">
+      <div class="banner-title">❓ وقت للأسئلة</div>
+      <div class="banner-text">في نهاية اللقاء نفتح باب الأسئلة. استعد بأسئلتك من الآن.</div>
+    </div>
+
+  </div>
+
+  <!-- TAB 2: الفاعليات الأسبوعية -->
+  <div class="section" id="schedule">
+
+    <p class="sec-title">📅 فاعليات أسبوعية</p>
+
+    <div class="sched-row">
+      <div class="day-badge">الثلاثاء</div>
+      <div class="sched-content">
+        <strong>هناخد إيه النهاردة؟ &amp; لينك اللايف</strong>
+        <span>تشويق بموضوع اللقاء ورابط الحضور</span>
+      </div>
+      <div class="sched-emoji">📢</div>
+    </div>
+
+    <div class="sched-row">
+      <div class="day-badge">الأربعاء</div>
+      <div class="sched-content">
+        <strong>كراسة تفاعلية</strong>
+        <span>الكراسة التفاعلية لتثبيت العلم</span>
+      </div>
+      <div class="sched-emoji">📓</div>
+    </div>
+
+    <div class="sched-row">
+      <div class="day-badge">الخميس</div>
+      <div class="sched-content">
+        <strong>المحاضرات مسجلة</strong>
+        <span>لمن فاته اللايف أو أراد المراجعة</span>
+      </div>
+      <div class="sched-emoji">🎬</div>
+    </div>
+
+    <div class="sched-row">
+      <div class="day-badge">السبت</div>
+      <div class="sched-content">
+        <strong>فائدة &amp; تذكرة بالسماع</strong>
+        <span>فائدة سريعة وتحفيز على التطبيق</span>
+      </div>
+      <div class="sched-emoji">💡</div>
+    </div>
+
+    <div class="sched-row">
+      <div class="day-badge">الإثنين</div>
+      <div class="sched-content">
+        <strong>فورم متابعة (يشمل أسئلة)</strong>
+        <span>متابعة أسبوعية وأسئلة للتثبيت</span>
+      </div>
+      <div class="sched-emoji">📝</div>
+    </div>
+
+    <div class="divider">✦ ✦ ✦</div>
+
+    <p class="sec-title">🗂️ مهام تفصيلية — مريم وحيد</p>
+
+    <ul class="tasks-list">
+      <li onclick="toggleCheck(this)"><span class="chk"></span> نزول لينك اللايف</li>
+      <li onclick="toggleCheck(this)"><span class="chk"></span> متابعة تعليقات اللايف</li>
+      <li onclick="toggleCheck(this)"><span class="chk"></span> نزول كراسة التفاعل</li>
+      <li onclick="toggleCheck(this)"><span class="chk"></span> نزول لينك المحاضرات المسجلة</li>
+      <li onclick="toggleCheck(this)"><span class="chk"></span> نزول الفائدة</li>
+      <li onclick="toggleCheck(this)"><span class="chk"></span> نزول فورم المتابعة</li>
+      <li onclick="toggleCheck(this)"><span class="chk"></span> الرد على الرسائل</li>
+    </ul>
+
+  </div>
+
+  <!-- TAB 3: التفاعل والجوائز -->
+  <div class="section" id="engage">
+
+    <p class="sec-title">⭐ التفاعل والجوائز</p>
+
+    <div class="banner banner-gold">
+      <div class="banner-title">🎁 جوائز شهرية!</div>
+      <div class="banner-text">
+        الترم ده عملنا شوية تعديلات تخليك متابع أكتر وجوايز — فخليك متفاعل معنا وملتزم بالحاجات اللي بتنزل.
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card card-teal">
+        <span class="card-icon">🔴</span>
+        <div class="card-title">حضور اللايف مهم جداً</div>
+        <div class="card-body">احرص عليه — في درجات على حضور اللايف.</div>
+      </div>
+      <div class="card card-gold">
+        <span class="card-icon">📝</span>
+        <div class="card-title">الالتزام بالواجبات</div>
+        <div class="card-body">في درجات على الالتزام بالواجبات — الفورم والكراسة وكل حاجة بتنزل.</div>
+      </div>
+      <div class="card card-teal">
+        <span class="card-icon">🏆</span>
+        <div class="card-title">جوائز شهرية</div>
+        <div class="card-body">جوائز شهرية على الحضور والالتزام.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 4: الدعوة -->
+  <div class="section" id="dawah">
+
+    <p class="sec-title">📣 الدعوة</p>
+
+    <div class="banner banner-teal">
+      <div class="banner-title">📣 انشر ما تعلمت</div>
+      <div class="banner-text">
+        كتابة الفوائد على صفحتك وفي الجروبات اللي تبعك — ونشر كل علم اتعلمته بطريقتك أنت، مش لينك الحلقة.
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card card-teal">
+        <span class="card-icon">✍️</span>
+        <div class="card-title">اكتب الفوائد على صفحتك</div>
+        <div class="card-body">شارك ما استفدت به على صفحتك الشخصية.</div>
+      </div>
+      <div class="card card-gold">
+        <span class="card-icon">💬</span>
+        <div class="card-title">في الجروبات اللي تبعك</div>
+        <div class="card-body">انشر الفائدة في مجموعاتك — كل علم تنشره صدقة جارية.</div>
+      </div>
+      <div class="card card-teal">
+        <span class="card-icon">🚫</span>
+        <div class="card-title">مش لينك الحلقة</div>
+        <div class="card-body">انقل العلم بطريقتك — بطريقته مش لينك الحلقة.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 5: تقنية البث -->
+  <div class="section" id="tech">
+
+    <p class="sec-title">📡 تقنية البث</p>
+
+    <div class="banner banner-dark">
+      <div class="banner-title">📡 لينكين — خارجي وداخلي بـ Streamyard</div>
+      <div class="banner-text">
+        فكرة لينكين: واحد خارجي وواحد داخلي بـ Streamyard.
+      </div>
+    </div>
+
+    <div class="cards-grid">
+      <div class="card card-teal">
+        <span class="card-icon">🌐</span>
+        <div class="card-title">الرابط الخارجي</div>
+        <div class="card-body">لمن لم ينضم بعد أو يريد مشاركة اللقاء مع غيره.</div>
+      </div>
+      <div class="card card-gold">
+        <span class="card-icon">🔒</span>
+        <div class="card-title">الرابط الداخلي</div>
+        <div class="card-body">للأعضاء المسجلين — عبر Streamyard لأفضل تجربة بث.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- TAB 6: فريق العمل -->
+  <div class="section" id="team">
+
+    <p class="sec-title">👥 فريق العمل</p>
+
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">م</div>
+        <div class="team-name">د. محمد الغليظ</div>
+        <div class="team-role">تحضير وإلقاء</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">ج</div>
+        <div class="team-name">جيرار</div>
+        <div class="team-role">تصوير</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">أ</div>
+        <div class="team-name">أسماء عادل</div>
+        <div class="team-role">مونتاج</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">د</div>
+        <div class="team-name">داليا &amp; دعاء</div>
+        <div class="team-role">مراجعة</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">س</div>
+        <div class="team-name">سماح</div>
+        <div class="team-role">رفع</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">م</div>
+        <div class="team-name">مريم وحيد</div>
+        <div class="team-role">فاعليات</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">د</div>
+        <div class="team-name">داليا</div>
+        <div class="team-role">أسئلة</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">ر</div>
+        <div class="team-name">رشا العوام</div>
+        <div class="team-role">Create AI</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">آ</div>
+        <div class="team-name">آلاء أشرف &amp; دعاء</div>
+        <div class="team-role">متابعة شاملة</div>
+      </div>
+    </div>
+
+  </div>
+
+</div><!-- end main -->
+
+<div class="footer">
+  <div class="gold">مدرسة القلوب</div>
+  الترم الثاني · 1447هـ
+</div>
+
+<script>
+  function showTab(id, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+  function toggleAcc(btn) {
+    const body = btn.nextElementSibling;
+    const isOpen = btn.classList.contains('open');
+    document.querySelectorAll('.acc-head').forEach(h => { h.classList.remove('open'); h.nextElementSibling.classList.remove('open'); });
+    if (!isOpen) { btn.classList.add('open'); body.classList.add('open'); }
+  }
+  function toggleCheck(li) {
+    li.classList.toggle('done');
+    li.querySelector('.chk').textContent = li.classList.contains('done') ? '✓' : '';
+  }
+</script>
+</body>
+</html>
