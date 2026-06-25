@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة بيانات رحلة إلى الله</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Lateef:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#2b1f16;
+    --paper:#f7eee0;
+    --paper-2:#efdfc6;
+    --teal:#8a4a1f;
+    --teal-deep:#5c2f12;
+    --gold:#d9762c;
+    --gold-light:#f2a35c;
+    --rose:#a4453a;
+    --line:#e0c9a6;
+    --card:#fffaf2;
+    --shadow: 0 1px 2px rgba(92,47,18,.08), 0 8px 24px -12px rgba(92,47,18,.22);
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(182,134,44,.08), transparent 60%),
+      radial-gradient(900px 500px at -10% 10%, rgba(15,76,71,.06), transparent 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Tajawal', sans-serif;
+    line-height:1.55;
+    min-height:100vh;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* ===== Header ===== */
+  header.top{
+    display:flex;align-items:flex-end;justify-content:space-between;gap:24px;
+    padding:34px 36px;border-radius:20px;
+    background:linear-gradient(135deg, var(--teal-deep), var(--teal) 60%, #6b3815);
+    color:#fbeedb;
+    box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+    margin-bottom:26px;
+  }
+  header.top::before{
+    content:"";position:absolute;inset:0;
+    background-image: radial-gradient(circle at 18px 18px, rgba(242,163,92,.18) 1.4px, transparent 1.6px);
+    background-size: 28px 28px;
+    opacity:.5;
+    pointer-events:none;
+  }
+  .title-block{position:relative;z-index:1;}
+  .eyebrow{
+    font-family:'Lateef', serif; font-size:22px; color:var(--gold-light);
+    letter-spacing:.5px; margin-bottom:2px;
+  }
+  h1{
+    font-size:clamp(26px,3.6vw,38px); margin:2px 0 8px; font-weight:900;
+    letter-spacing:-.5px;
+  }
+  .sub{opacity:.82;font-size:14.5px;max-width:520px;}
+  .status-block{position:relative;z-index:1;text-align:left;min-width:230px;}
+  .status-pill{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(246,241,230,.1);
+    border:1px solid rgba(246,241,230,.22);
+    padding:7px 14px;border-radius:999px;font-size:13px;margin-bottom:10px;
+  }
+  .dot{width:8px;height:8px;border-radius:50%;background:#7fd99a;box-shadow:0 0 0 3px rgba(127,217,154,.25);}
+  .dot.stale{background:var(--gold-light);box-shadow:0 0 0 3px rgba(217,173,92,.25);}
+  .dot.err{background:#e8857c;box-shadow:0 0 0 3px rgba(232,133,124,.25);}
+  .last-sync{font-size:12.5px;opacity:.75;margin-bottom:12px;}
+  button#refreshBtn{
+    background:var(--gold); color:var(--teal-deep); border:none;
+    font-family:'Tajawal',sans-serif; font-weight:700; font-size:13.5px;
+    padding:9px 18px;border-radius:999px;cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;
+    transition:transform .15s ease, background .15s ease;
+  }
+  button#refreshBtn:hover{background:var(--gold-light); transform:translateY(-1px);}
+  button#refreshBtn:active{transform:translateY(0);}
+  button#refreshBtn .spin{display:inline-block;transition:transform .6s ease;}
+  button#refreshBtn.loading .spin{animation:spin 0.9s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ===== KPI row ===== */
+  .kpis{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:14px; margin-bottom:26px;
+  }
+  .kpi{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 18px 16px; box-shadow:var(--shadow);
+    position:relative; overflow:hidden;
+  }
+  .kpi::after{
+    content:"";position:absolute;right:0;top:0;bottom:0;width:4px;
+    background:var(--accent,var(--gold));
+  }
+  .kpi .label{font-size:12.5px;color:#6b6253;margin-bottom:6px;font-weight:500;}
+  .kpi .value{font-size:30px;font-weight:900;color:var(--teal-deep);font-variant-numeric:tabular-nums;}
+  .kpi .value small{font-size:14px;font-weight:700;color:#8a8270;}
+
+  /* ===== Section headers ===== */
+  .section{margin-bottom:30px;}
+  .section-head{
+    display:flex;align-items:baseline;gap:10px;margin-bottom:14px;
+    padding-bottom:8px;border-bottom:2px solid var(--line);
+  }
+  .section-head .num{
+    font-family:'Lateef',serif;color:var(--gold);font-size:22px;font-weight:700;
+  }
+  .section-head h2{font-size:19px;margin:0;font-weight:700;color:var(--teal-deep);}
+  .section-head .hint{font-size:12.5px;color:#8a8270;margin-right:auto;}
+
+  /* ===== Charts grid ===== */
+  .grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media (max-width:860px){ .grid2,.grid3{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px 18px 14px; box-shadow:var(--shadow);
+  }
+  .panel h3{margin:0 0 4px;font-size:14.5px;font-weight:700;color:var(--teal-deep);}
+  .panel .panel-sub{font-size:12px;color:#8a8270;margin-bottom:12px;}
+  .chart-box{position:relative;height:240px;}
+  .chart-box.tall{height:300px;}
+
+  /* ===== Table ===== */
+  .table-tools{
+    display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;
+  }
+  .table-tools input[type="search"]{
+    flex:1;min-width:180px;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:9px 14px;font-family:'Tajawal',sans-serif;font-size:13.5px;color:var(--ink);
+  }
+  .table-tools select{
+    background:var(--card);border:1px solid var(--line);border-radius:10px;
+    padding:9px 12px;font-family:'Tajawal',sans-serif;font-size:13px;color:var(--ink);
+  }
+  .table-scroll{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    box-shadow:var(--shadow); overflow:auto; max-height:520px;
+  }
+  table{border-collapse:collapse;width:100%;font-size:13px;min-width:760px;}
+  thead th{
+    position:sticky;top:0;background:var(--teal-deep);color:#f3ecd9;
+    padding:11px 12px;text-align:right;font-weight:700;white-space:nowrap;
+    cursor:pointer;user-select:none;
+  }
+  thead th .arrow{opacity:.5;font-size:11px;margin-left:4px;}
+  thead th.sorted .arrow{opacity:1;color:var(--gold-light);}
+  tbody td{padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  tbody tr:nth-child(even){background:rgba(15,76,71,.025);}
+  tbody tr:hover{background:rgba(182,134,44,.08);}
+  .badge{
+    display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:700;
+  }
+  .badge.f{background:#f3e2dd;color:var(--rose);}
+  .badge.m{background:#dbe9e3;color:var(--teal);}
+  .pager{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12.5px;color:#6b6253;}
+  .pager button{
+    background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 12px;
+    cursor:pointer;font-family:'Tajawal',sans-serif;font-size:12.5px;color:var(--ink);
+  }
+  .pager button:disabled{opacity:.4;cursor:not-allowed;}
+  .pager .group{display:flex;gap:6px;}
+
+  /* ===== Loading / error states ===== */
+  #loadingState, #errorState{
+    text-align:center;padding:60px 20px;color:#6b6253;
+  }
+  #errorState{display:none;}
+  #errorState .icon{font-size:34px;margin-bottom:10px;}
+  #errorState code{
+    display:block;background:#fff;border:1px solid var(--line);border-radius:8px;
+    padding:10px;margin-top:12px;direction:ltr;text-align:left;font-size:12px;color:var(--rose);
+    overflow:auto;
+  }
+  .skeleton{
+    background:linear-gradient(90deg, var(--paper-2) 25%, #f8f3e6 37%, var(--paper-2) 63%);
+    background-size:400% 100%; animation:shimmer 1.4s ease infinite; border-radius:8px;
+  }
+  @keyframes shimmer{0%{background-position:100% 0;}100%{background-position:-100% 0;}}
+
+  footer{text-align:center;font-size:12px;color:#9a917c;margin-top:30px;}
+  footer span{color:var(--gold);}
+
+  ::-webkit-scrollbar{height:8px;width:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="title-block">
+      <div class="eyebrow">أبجديات أونلاين</div>
+      <h1>لوحة بيانات «رحلة مع النبي ﷺ»</h1>
+      <div class="sub">إحصائيات لحظية للمسجلين في الدورة — تُقرأ مباشرة من الشيت بدون أي رفع يدوي</div>
+    </div>
+    <div class="status-block">
+      <div class="status-pill"><span class="dot" id="statusDot"></span><span id="statusText">جارٍ الاتصال…</span></div>
+      <div class="last-sync" id="lastSync">—</div>
+      <button id="refreshBtn" onclick="loadData()"><span class="spin">⟳</span> تحديث الآن</button>
+    </div>
+  </header>
+
+  <div id="loadingState">
+    <div class="skeleton" style="height:90px;border-radius:14px;margin-bottom:14px;"></div>
+    <div class="skeleton" style="height:240px;border-radius:14px;"></div>
+  </div>
+
+  <div id="errorState">
+    <div class="icon">⚠️</div>
+    <div><strong>مش قادر أوصل لبيانات الشيت</strong></div>
+    <div style="margin-top:6px;">تأكد إن رابط Apps Script منشور بصلاحية "Anyone" وشغال</div>
+    <code id="errorDetail"></code>
+    <div style="margin-top:14px;"><button id="retryBtn" onclick="loadData()" style="background:var(--teal);color:#fff;border:none;padding:10px 20px;border-radius:999px;cursor:pointer;font-family:'Tajawal',sans-serif;font-weight:700;">إعادة المحاولة</button></div>
+  </div>
+
+  <div id="content" style="display:none;">
+
+    <div class="kpis" id="kpiRow"></div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">ا</span><h2>التوزيع الديموغرافي</h2><span class="hint">النوع، الفئة العمرية، والجنسية</span></div>
+      <div class="grid3">
+        <div class="panel">
+          <h3>النوع</h3>
+          <div class="panel-sub">إجمالي المسجلين حسب الجنس</div>
+          <div class="chart-box"><canvas id="genderChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3>الفئة العمرية</h3>
+          <div class="panel-sub">أقل من ١٧ / ١٧–٢٠ / أكبر من ٢٠</div>
+          <div class="chart-box"><canvas id="ageChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3>الجنسية</h3>
+          <div class="panel-sub">أكثر ٦ جنسيات</div>
+          <div class="chart-box"><canvas id="nationalityChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">ب</span><h2>الجغرافيا</h2><span class="hint">بلد ومحافظة الإقامة</span></div>
+      <div class="grid2">
+        <div class="panel">
+          <h3>مصر مقابل خارج مصر</h3>
+          <div class="panel-sub">بلد الإقامة الحالي</div>
+          <div class="chart-box tall"><canvas id="countryChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3>أعلى ١٠ محافظات</h3>
+          <div class="panel-sub">للمقيمين داخل مصر</div>
+          <div class="chart-box tall"><canvas id="governorateChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">ج</span><h2>التسويق والوصول</h2><span class="hint">من أين عرف المسجلون الأكاديمية</span></div>
+      <div class="grid2">
+        <div class="panel">
+          <h3>منصة التواصل</h3>
+          <div class="panel-sub">القناة التي رأى بها الإعلان</div>
+          <div class="chart-box"><canvas id="platformChart"></canvas></div>
+        </div>
+        <div class="panel">
+          <h3>طريقة المعرفة بأبجديات</h3>
+          <div class="panel-sub">أعلى ٦ مصادر</div>
+          <div class="chart-box"><canvas id="howKnowChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">د</span><h2>جدول الفئات العمرية</h2><span class="hint" id="ageTableHint"></span></div>
+      <div class="table-scroll" style="max-height:none;">
+        <table id="ageTable" style="min-width:0;">
+          <thead><tr><th>الفئة العمرية</th><th>العدد</th><th>النسبة</th></tr></thead>
+          <tbody id="ageTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-head"><span class="num">تشخيص</span><h2>بيانات خام للفحص (مؤقت)</h2><span class="hint">احذف هذا القسم بعد التأكد من سلامة البيانات</span></div>
+      <div class="panel">
+        <h3>أول 3 صفوف كما وصلت من Apps Script</h3>
+        <pre id="debugRaw" style="white-space:pre-wrap;font-size:11px;direction:ltr;text-align:left;background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;max-height:300px;overflow:auto;"></pre>
+        <h3 style="margin-top:14px;">أسماء الأعمدة (headers) كما وصلت</h3>
+        <pre id="debugHeaders" style="white-space:pre-wrap;font-size:11px;direction:ltr;text-align:left;background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;"></pre>
+        <h3 style="margin-top:14px;">أول 10 قيم سن بعد المعالجة</h3>
+        <pre id="debugAges" style="white-space:pre-wrap;font-size:11px;direction:ltr;text-align:left;background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;"></pre>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>تُحدَّث هذه الصفحة مباشرة من <span>Google Sheets</span> عبر Apps Script — بيانات «رحلة إلى الله» · أبجديات أونلاين</footer>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyOk53LLdZCjW5O22gkmuOY2u_dYYRdEXpqcUA2oCI0hN44tkub0c5sitDoDsxR-A7Z/exec";
+
+const COL = {
+  gender: "النوع - Gender",
+  age: "السن - Age",
+  nationality: "الجنسية - Nationality",
+  country: "بلد الإقامة - Country of residence",
+  governorate: "المحافظة (التي تسكن فيها حاليا) - Governorate",
+  marital: "الحالة الإجتماعية",
+  studiedBefore: "هل درست في أبجديات من قبل؟",
+  platform: "عن طريق أي منصة تم رؤية الإعلان والتواصل الإداري للاشتراك في الدورة؟",
+  howKnow: "ازاي عرفت أبجديات؟"
+};
+
+// Headers from Apps Script sometimes carry trailing spaces; build a normalized lookup.
+function buildKeyMap(headers){
+  const map = {};
+  headers.forEach(h => { map[h.trim()] = h; });
+  return map;
+}
+function val(row, keyMap, label){
+  const real = keyMap[label];
+  return real ? (row[real] ?? "") : "";
+}
+
+let CHARTS = {};
+let TABLE_ROWS = [];
+let FILTERED_ROWS = [];
+let SORT_COL = null, SORT_DIR = 1;
+let PAGE = 1;
+const PAGE_SIZE = 25;
+
+const PALETTE = {
+  teal: "#0f4c47", tealLight:"#3f867d", gold:"#b6862c", goldLight:"#d9ad5c",
+  rose:"#a4453a", roseLight:"#cf8a80", sand:"#c9bb91", ink:"#1b2b28",
+  multi: ["#0f4c47","#b6862c","#a4453a","#3f867d","#d9ad5c","#6b5b3f","#7a9e94","#c9bb91"]
+};
+
+Chart.defaults.font.family = "'Tajawal', sans-serif";
+Chart.defaults.color = "#5b5443";
+
+function normGender(g){
+  g = (g||"").trim();
+  if(/أنث|female/i.test(g)) return "أنثى";
+  if(/ذكر|male/i.test(g)) return "ذكر";
+  return g || "غير محدد";
+}
+function normCountry(c){
+  c = (c||"").trim();
+  const map = {"Qatar":"قطر","qatar":"قطر","Canada":"كندا"};
+  return map[c] || c || "غير محدد";
+}
+function toAge(a){
+  const n = parseFloat(a);
+  return isNaN(n) ? null : n;
+}
+
+async function loadData(){
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading');
+  document.getElementById('statusText').textContent = 'جارٍ التحديث…';
+  document.getElementById('statusDot').className = 'dot';
+  document.getElementById('errorState').style.display = 'none';
+
+  try{
+    const res = await fetch(SCRIPT_URL, {cache:"no-store"});
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    if(data.error) throw new Error(data.error);
+
+    const keyMap = buildKeyMap(data.headers || Object.keys(data.rows[0]||{}));
+
+    // Keep only rows that look like real registration rows (numeric or empty age, has gender)
+    const rows = (data.rows || []).filter(r => {
+      const g = val(r, keyMap, COL.gender);
+      const a = val(r, keyMap, COL.age);
+      const ageOk = a === "" || a === null || !isNaN(parseFloat(a));
+      return g && ageOk;
+    });
+
+    TABLE_ROWS = rows.map(r => ({
+      raw: r,
+      gender: normGender(val(r, keyMap, COL.gender)),
+      age: toAge(val(r, keyMap, COL.age)),
+      nationality: (val(r, keyMap, COL.nationality)||"").trim() || "غير محدد",
+      country: normCountry(val(r, keyMap, COL.country)),
+      governorate: (val(r, keyMap, COL.governorate)||"").trim() || "غير محدد",
+      marital: (val(r, keyMap, COL.marital)||"").trim() || "غير محدد",
+      studiedBefore: (val(r, keyMap, COL.studiedBefore)||"").trim() || "غير محدد",
+      platform: (val(r, keyMap, COL.platform)||"").trim() || "غير محدد",
+      howKnow: (val(r, keyMap, COL.howKnow)||"").trim() || "غير محدد"
+    }));
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    document.getElementById('statusDot').className = 'dot';
+    document.getElementById('statusText').textContent = 'متصل — بيانات لحظية';
+    const now = new Date();
+    document.getElementById('lastSync').textContent = 'آخر تحديث: ' + now.toLocaleTimeString('ar-EG', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+    renderAll();
+
+    // ===== تشخيص مؤقت =====
+    try{
+      document.getElementById('debugRaw').textContent = JSON.stringify((data.rows||[]).slice(0,3), null, 2);
+      document.getElementById('debugHeaders').textContent = JSON.stringify(data.headers, null, 2);
+      document.getElementById('debugAges').textContent = TABLE_ROWS.slice(0,10).map(r => `age=${JSON.stringify(r.age)} (raw col value type via COL.age key)`).join('\n');
+    }catch(e){}
+    // ===== نهاية التشخيص =====
+
+  }catch(err){
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('content').style.display = TABLE_ROWS.length ? 'block' : 'none';
+    document.getElementById('errorState').style.display = TABLE_ROWS.length ? 'none' : 'block';
+    document.getElementById('errorDetail').textContent = err.message;
+    document.getElementById('statusDot').className = 'dot err';
+    document.getElementById('statusText').textContent = 'تعذّر الاتصال';
+  }finally{
+    btn.classList.remove('loading');
+  }
+}
+
+function countBy(rows, keyFn){
+  const m = new Map();
+  rows.forEach(r => {
+    const k = keyFn(r);
+    m.set(k, (m.get(k)||0)+1);
+  });
+  return m;
+}
+
+function renderAll(){
+  renderKPIs();
+  renderGenderChart();
+  renderAgeChart();
+  renderNationalityChart();
+  renderCountryChart();
+  renderGovernorateChart();
+  renderPlatformChart();
+  renderHowKnowChart();
+  renderAgeTable();
+}
+
+function renderKPIs(){
+  const total = TABLE_ROWS.length;
+  const egypt = TABLE_ROWS.filter(r => r.country === "مصر").length;
+  const female = TABLE_ROWS.filter(r => r.gender === "أنثى").length;
+  const male = TABLE_ROWS.filter(r => r.gender === "ذكر").length;
+  const under17 = TABLE_ROWS.filter(r => r.age !== null && r.age < 17).length;
+  const teen = TABLE_ROWS.filter(r => r.age !== null && r.age >= 17 && r.age <= 20).length;
+
+  const kpis = [
+    {label:"إجمالي المسجلين", value: total, accent:"var(--teal)"},
+    {label:"من مصر", value: egypt, sub:`${total?Math.round(egypt/total*100):0}%`, accent:"var(--gold)"},
+    {label:"من خارج مصر", value: total-egypt, sub:`${total?Math.round((total-egypt)/total*100):0}%`, accent:"var(--rose)"},
+    {label:"إناث", value: female, accent:"var(--rose)"},
+    {label:"ذكور", value: male, accent:"var(--teal)"},
+    {label:"أقل من ١٧ سنة", value: under17, accent:"var(--gold)"},
+    {label:"من ١٧ إلى ٢٠ سنة", value: teen, accent:"var(--gold)"},
+  ];
+
+  document.getElementById('kpiRow').innerHTML = kpis.map(k => `
+    <div class="kpi" style="--accent:${k.accent}">
+      <div class="label">${k.label}</div>
+      <div class="value">${k.value.toLocaleString('ar-EG')} ${k.sub ? `<small>(${k.sub})</small>`:''}</div>
+    </div>
+  `).join('');
+}
+
+function destroyChart(id){ if(CHARTS[id]){ CHARTS[id].destroy(); } }
+
+function renderGenderChart(){
+  destroyChart('gender');
+  const m = countBy(TABLE_ROWS, r=>r.gender);
+  CHARTS.gender = new Chart(document.getElementById('genderChart'), {
+    type:'doughnut',
+    data:{ labels:[...m.keys()], datasets:[{ data:[...m.values()], backgroundColor:[PALETTE.rose, PALETTE.teal, PALETTE.sand], borderWidth:2, borderColor:"#fffdf8" }]},
+    options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:12,padding:14,font:{size:12}}}}, cutout:'62%' }
+  });
+}
+
+function renderAgeChart(){
+  destroyChart('age');
+  const buckets = {"أقل من ١٧":0, "١٧ - ٢٠":0, "أكبر من ٢٠":0, "غير محدد":0};
+  TABLE_ROWS.forEach(r=>{
+    if(r.age === null) buckets["غير محدد"]++;
+    else if(r.age < 17) buckets["أقل من ١٧"]++;
+    else if(r.age <= 20) buckets["١٧ - ٢٠"]++;
+    else buckets["أكبر من ٢٠"]++;
+  });
+  CHARTS.age = new Chart(document.getElementById('ageChart'), {
+    type:'bar',
+    data:{ labels:Object.keys(buckets), datasets:[{ data:Object.values(buckets), backgroundColor:[PALETTE.goldLight,PALETTE.gold,PALETTE.teal,PALETTE.sand], borderRadius:6 }]},
+    options:{ maintainAspectRatio:false, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true, grid:{color:'#e8e0cb'}}, x:{grid:{display:false}} } }
+  });
+}
+
+function renderNationalityChart(){
+  destroyChart('nat');
+  const m = countBy(TABLE_ROWS, r=>r.nationality);
+  const sorted = [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6);
+  CHARTS.nat = new Chart(document.getElementById('nationalityChart'), {
+    type:'doughnut',
+    data:{ labels:sorted.map(x=>x[0]), datasets:[{ data:sorted.map(x=>x[1]), backgroundColor:PALETTE.multi, borderWidth:2, borderColor:"#fffdf8" }]},
+    options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:10,font:{size:11}}}}, cutout:'55%' }
+  });
+}
+
+function renderCountryChart(){
+  destroyChart('country');
+  const egypt = TABLE_ROWS.filter(r=>r.country==="مصر").length;
+  const other = TABLE_ROWS.length - egypt;
+  CHARTS.country = new Chart(document.getElementById('countryChart'), {
+    type:'pie',
+    data:{ labels:["مصر","خارج مصر"], datasets:[{ data:[egypt,other], backgroundColor:[PALETTE.teal, PALETTE.gold], borderWidth:2, borderColor:"#fffdf8" }]},
+    options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom'}} }
+  });
+}
+
+function renderGovernorateChart(){
+  destroyChart('gov');
+  const inEgypt = TABLE_ROWS.filter(r=>r.country==="مصر");
+  const m = countBy(inEgypt, r=>r.governorate);
+  const sorted = [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,10);
+  CHARTS.gov = new Chart(document.getElementById('governorateChart'), {
+    type:'bar',
+    data:{ labels:sorted.map(x=>x[0]), datasets:[{ data:sorted.map(x=>x[1]), backgroundColor:PALETTE.teal, borderRadius:5 }]},
+    options:{
+      indexAxis:'y', maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{ x:{beginAtZero:true, grid:{color:'#e8e0cb'}}, y:{grid:{display:false}, ticks:{font:{size:11.5}}} }
+    }
+  });
+}
+
+function renderPlatformChart(){
+  destroyChart('platform');
+  const m = countBy(TABLE_ROWS, r=>r.platform);
+  const sorted = [...m.entries()].sort((a,b)=>b[1]-a[1]);
+  CHARTS.platform = new Chart(document.getElementById('platformChart'), {
+    type:'doughnut',
+    data:{ labels:sorted.map(x=>x[0]), datasets:[{ data:sorted.map(x=>x[1]), backgroundColor:PALETTE.multi, borderWidth:2, borderColor:"#fffdf8" }]},
+    options:{ maintainAspectRatio:false, plugins:{legend:{position:'bottom', labels:{boxWidth:12,padding:12,font:{size:12}}}}, cutout:'58%' }
+  });
+}
+
+function renderHowKnowChart(){
+  destroyChart('howKnow');
+  const m = countBy(TABLE_ROWS, r=>r.howKnow);
+  const sorted = [...m.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6);
+  CHARTS.howKnow = new Chart(document.getElementById('howKnowChart'), {
+    type:'bar',
+    data:{ labels:sorted.map(x=>x[0]), datasets:[{ data:sorted.map(x=>x[1]), backgroundColor:PALETTE.rose, borderRadius:5 }]},
+    options:{
+      indexAxis:'y', maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{ x:{beginAtZero:true, grid:{color:'#e8e0cb'}}, y:{grid:{display:false}, ticks:{font:{size:11.5}}} }
+    }
+  });
+}
+
+function renderAgeTable(){
+  const brackets = [
+    {label:"أقل من 17 سنة", test:a => a !== null && a < 17},
+    {label:"من 17 لـ 20 سنة", test:a => a !== null && a >= 17 && a <= 20},
+    {label:"من 21 سنة لـ 26 سنة", test:a => a !== null && a >= 21 && a <= 26},
+    {label:"من 27 سنة لـ 30 سنة", test:a => a !== null && a >= 27 && a <= 30},
+    {label:"من 31 سنة لـ 35 سنة", test:a => a !== null && a >= 31 && a <= 35},
+    {label:"من 36 سنة لـ 40 سنة", test:a => a !== null && a >= 36 && a <= 40},
+    {label:"من 41 لـ 50 سنة", test:a => a !== null && a >= 41 && a <= 50},
+    {label:"من 51 سنة لـ 60 سنة", test:a => a !== null && a >= 51 && a <= 60},
+    {label:"من 61 لـ 70 سنة", test:a => a !== null && a >= 61 && a <= 70},
+    {label:"أكبر من 70 سنة", test:a => a !== null && a > 70},
+    {label:"غير محدد", test:a => a === null},
+  ];
+
+  const total = TABLE_ROWS.length;
+  const rowsHtml = brackets.map(b => {
+    const count = TABLE_ROWS.filter(r => b.test(r.age)).length;
+    const pct = total ? (count/total*100) : 0;
+    return `
+      <tr>
+        <td>${b.label}</td>
+        <td style="font-weight:700;">${count.toLocaleString('ar-EG')}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="min-width:42px;">${pct.toFixed(1)}%</span>
+            <div style="flex:1;background:var(--paper-2);border-radius:6px;height:8px;overflow:hidden;">
+              <div style="width:${pct}%;background:var(--gold);height:100%;"></div>
+            </div>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+
+  document.getElementById('ageTableBody').innerHTML = rowsHtml;
+  document.getElementById('ageTableHint').textContent = `إجمالي ${total.toLocaleString('ar-EG')} سجل`;
+}
+
+loadData();
+// Auto-refresh every 2 minutes
+setInterval(loadData, 120000);
+</script>
+</body>
+</html>
